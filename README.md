@@ -4,7 +4,9 @@
 curl -L -O https://raw.githubusercontent.com/caojiaxia/xray-docker-tool/main/xray-tool.sh && sed -i 's/\r$//' xray-tool.sh && chmod +x xray-tool.sh && ./xray-tool.sh
 ```
 
-**Docker环境部署**
+***手动安装流程***
+
+**一：Docker环境部署**
 - 1.更新系统软件包
 ```
 apt update && apt upgrade -y
@@ -26,7 +28,7 @@ curl -L "https://github.com/docker/compose/releases/latest/download/docker-compo
 curl -L "https://hub.gitmirror.com/https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
 ```
 
-### Cloudflare Tunnel 方案
+### 二：Cloudflare Tunnel 方案
 
 **Docker-compose配置**
 
@@ -56,11 +58,6 @@ docker compose up -d
 - 3
 ```
  docker logs -f xray-tunnel
-```
-
-### 一键安装命令：
-```
-curl -fsSL https://raw.githubusercontent.com/caojiaxia/xray-tunnel/main/deploy.sh | bash
 ```
 
 ### cloudflare tunnel创建
@@ -94,7 +91,7 @@ curl -fsSL https://raw.githubusercontent.com/caojiaxia/xray-tunnel/main/deploy.s
 | ALPN  |   h2, http/1.1    |
 | 跳过证书验证(allowlnsecure) |  false      |
 
-### NPM + Xray 方案
+### 三：NPM + Xray 方案
 
 **Docker-compose配置**
 
