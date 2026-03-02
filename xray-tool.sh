@@ -13,14 +13,36 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# 1. 开启 BBR
+# 1. 开启 BBR 加速函数 (增强反馈版)
 enable_bbr() {
-    if ! sysctl net.ipv4.tcp_congestion_control | grep -q "bbr"; then
-        echo -e "${BLUE}正在开启 BBR 加速...${NC}"
+    echo -e "${BLUE}正在检测 BBR 状态...${NC}"
+    # 检查当前是否已开启
+    local current_cc=$(sysctl net.ipv4.tcp_congestion_control | awk '{print $3}')
+    
+    if [ "$current_cc" == "bbr" ]; then
+        echo -e "${GREEN}检测到 BBR 已处于开启状态，性能已达最佳！${NC}"
+    else
+        echo -e "${YELLOW}当前拥塞控制算法为: $current_cc，正在切换至 BBR...${NC}"
+        # 写入配置
+        sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+        sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
         echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
         echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
-        sysctl -p
+        
+        # 生效配置
+        sysctl -p >/dev/null 2>&1
+        
+        # 再次检查确认
+        local final_cc=$(sysctl net.ipv4.tcp_congestion_control | awk '{print $3}')
+        if [ "$final_cc" == "bbr" ]; then
+            echo -e "${GREEN}成功！BBR 加速已生效。${NC}"
+            echo -e "${BLUE}当前算法: $(sysctl net.ipv4.tcp_congestion_control)${NC}"
+            echo -e "${BLUE}队列算法: $(sysctl net.core.default_qdisc)${NC}"
+        else
+            echo -e "${RED}失败！无法自动开启 BBR，请检查内核版本是否高于 4.9。${NC}"
+        fi
     fi
+    sleep 2
 }
 
 # 2. 链接生成器 (含伪装域名 Host/SNI)
