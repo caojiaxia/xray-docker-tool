@@ -78,7 +78,7 @@ uninstall_all() {
 
 # 菜单逻辑
 echo -e "${BLUE}====================================${NC}"
-echo -e "${GREEN}      Xray DockerS VLESS 终极工具箱       ${NC}"
+echo -e "${GREEN}      Claw VPS Xray 终极工具箱       ${NC}"
 echo -e "${BLUE}====================================${NC}"
 echo "1) 安装 Cloudflare Tunnel 方案"
 echo "2) 安装 NPM + Xray 方案"
