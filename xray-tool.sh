@@ -13,7 +13,7 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# 开启 BBR
+# 1. 开启 BBR
 enable_bbr() {
     if ! sysctl net.ipv4.tcp_congestion_control | grep -q "bbr"; then
         echo -e "${BLUE}正在开启 BBR 加速...${NC}"
@@ -23,7 +23,7 @@ enable_bbr() {
     fi
 }
 
-# 终极链接生成器 (严格证书 + ALPN适配)
+# 2. 链接生成器 (全参数版)
 gen_link() {
     local TYPE=$1      # ws 或 xhttp
     local UUID=$2
@@ -37,43 +37,39 @@ gen_link() {
     local SECURITY=$TLS
     [ "$TLS" == "none" ] && SECURITY="none"
 
-    # 基础链接
     local LINK="vless://$UUID@$ADDR:$PORT?path=$ENCODED_PATH&security=$SECURITY&encryption=none"
 
-    # 只有开启 TLS 时才添加高级参数
     if [ "$TLS" == "tls" ]; then
-        # sni: 域名 | fp: 浏览器指纹 | allowInsecure: 0 (严格验证) | alpn: 协议协商
+        # 严格证书验证 allowInsecure=0, 加入 alpn
         local ADV_PARAMS="&sni=$ADDR&fp=chrome&allowInsecure=0&alpn=h2,http/1.1"
-        
         if [ "$TYPE" == "xhttp" ]; then
             LINK="${LINK}&type=xhttp&mode=packet${ADV_PARAMS}"
         else
             LINK="${LINK}&type=ws${ADV_PARAMS}"
         fi
     else
-        # 非 TLS 模式仅添加类型
         [ "$TYPE" == "xhttp" ] && LINK="${LINK}&type=xhttp&mode=packet" || LINK="${LINK}&type=ws"
     fi
 
     LINK="$LINK#$REMARK"
     
-    echo -e "${YELLOW}================ 终极节点配置 (严格安全版) ================${NC}"
+    echo -e "${YELLOW}================ 终极节点配置 (全参数) ================${NC}"
     echo -e "${GREEN}协议: VLESS + $TYPE${NC} | ${CYAN}TLS: $TLS${NC}"
-    echo -e "ALPN: h2,http/1.1 | 允许不安全证书: false (严格)"
+    echo -e "ALPN: h2,http/1.1 | 允许不安全证书: false"
     echo -e "SNI: $ADDR | 指纹: chrome | 模式: packet"
-    echo -e "${YELLOW}-----------------------------------------------------------${NC}"
+    echo -e "${YELLOW}-------------------------------------------------------${NC}"
     echo -e "${CYAN}客户端直接导入链接:${NC}"
     echo -e "${BLUE}$LINK${NC}"
-    echo -e "${YELLOW}===========================================================${NC}"
+    echo -e "${YELLOW}=======================================================${NC}"
 }
 
-# 方案 2: NPM + Xray (XHTTP 严格版)
+# 3. 方案 2: NPM + Xray (含配置提醒)
 install_npm() {
     enable_bbr
     local IP=$(curl -s ifconfig.me)
     mkdir -p ~/xray-npm && cd ~/xray-npm
     
-    read -p "请输入自定义 UUID  重要：不要使用默认UUID  (回车默认): " MY_UUID
+    read -p "请输入自定义 UUID 重要：不要使用默认UUID (回车默认): " MY_UUID
     MY_UUID=${MY_UUID:-"c67e108d-b135-4acd-b0b4-33f2d18dff44"}
     read -p "请输入 XHTTP 路径 重要：不要使用默认路径 (回车默认 /xhttp): " MY_XPATH
     MY_XPATH=${MY_XPATH:-"/xhttp"}
@@ -114,15 +110,32 @@ networks:
     driver: bridge
 EOF
     docker compose up -d
-    echo -e "${GREEN}部署成功！${NC}"
+    echo -e "${GREEN}Docker 容器部署成功！${NC}"
+    
+    # 输出节点链接
     gen_link "xhttp" "$MY_UUID" "$MY_XPATH" "$ADDR" "$PORT" "$TLS" "NPM_XHTTP_$ADDR"
+
+    # ================= NPM 设置提醒 =================
+    echo -e "\n${RED}🚩 重要：请务必完成以下 NPM 后台设置，否则节点无法连接！${NC}"
+    echo -e "${YELLOW}1. 访问管理面板:${NC} http://$IP:81 (默认 admin@example.com / changeme)"
+    echo -e "${YELLOW}2. 添加 Proxy Host:${NC}"
+    echo -e "   - ${CYAN}Domain Names:${NC} $ADDR"
+    echo -e "   - ${CYAN}Forward Host:${NC} xray"
+    echo -e "   - ${CYAN}Forward Port:${NC} 10086"
+    echo -e "   - ${CYAN}Websockets Support:${NC} 开启 (必须开启)"
+    echo -e "${YELLOW}3. 配置 SSL:${NC}"
+    echo -e "   - 选择 SSL 选项卡，申请 Let's Encrypt 证书"
+    echo -e "   - 勾选 ${CYAN}Force SSL${NC} (强制 HTTPS)"
+    echo -e "   - 勾选 ${CYAN}HTTP/2 Support${NC}"
+    echo -e "${YELLOW}4. 高级设置 (可选):${NC} 若连接不稳定，可在 Advanced 粘贴 proxy_buffering off;"
+    echo -e "${RED}======================================================${NC}\n"
 }
 
-# 方案 1: Tunnel (WS 严格版)
+# 方案 1: Tunnel (WS 方案)
 install_tunnel() {
     enable_bbr
     read -p "请输入 Tunnel Token: " TOKEN
-    read -p "请输入自定义 UUID 重要：不要使用默认UUID  (回车默认): " MY_UUID
+    read -p "请输入自定义 UUID 重要：不要使用默认UUID (回车默认): " MY_UUID
     MY_UUID=${MY_UUID:-"c67e108d-b135-4acd-b0b4-33f2d18dff44"}
     read -p "请输入 WS 路径 重要：不要使用默认路径 (回车默认 /ws): " MY_XPATH
     MY_XPATH=${MY_XPATH:-"/ws"}
@@ -136,7 +149,7 @@ install_tunnel() {
     gen_link "ws" "$MY_UUID" "$MY_XPATH" "$MY_DOMAIN" "443" "tls" "CF_WS_$MY_DOMAIN"
 }
 
-# 菜单部分（保持不变...）
+# 菜单列表
 show_menu() {
     clear
     echo -e "${BLUE}====================================${NC}"
