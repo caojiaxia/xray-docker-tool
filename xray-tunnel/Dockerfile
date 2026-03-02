@@ -31,7 +31,7 @@ RUN apk add --no-cache ca-certificates bash gettext
 
 COPY --from=fetcher /usr/bin/xray /usr/bin/xray
 COPY --from=fetcher /usr/bin/cloudflared /usr/bin/cloudflared
-COPY config.template.json /etc/xray/config.template.json
+COPY ./xray-tunnel/config.template.json /etc/xray/config.template.json
 
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'envsubst < /etc/xray/config.template.json > /etc/xray/config.json' >> /entrypoint.sh && \
