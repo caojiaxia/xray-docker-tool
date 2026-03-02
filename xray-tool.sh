@@ -163,7 +163,7 @@ install_tunnel() {
 show_menu() {
     clear
     echo -e "${BLUE}====================================${NC}"
-    echo -e "${GREEN}      Claw VPS Xray 终极工具箱       ${NC}"
+    echo -e "${GREEN}      BoGe VPS Xray Docker工具箱       ${NC}"
     echo -e "${BLUE}====================================${NC}"
     echo "1) 安装 Cloudflare Tunnel 方案 (WS)"
     echo "2) 安装 NPM + Xray 方案 (XHTTP)"
