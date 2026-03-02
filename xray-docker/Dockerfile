@@ -20,8 +20,8 @@ RUN set -eux; \
     rm -rf /tmp/xray.zip /tmp/xray_files
 
 # 复制配置文件和启动脚本
-COPY config.template.json /etc/xray/config.template.json
-COPY entrypoint.sh /entrypoint.sh
+COPY ./xray-docker/entrypoint.sh /entrypoint.sh
+COPY ./xray-docker/config.template.json /etc/xray/config.template.json
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
