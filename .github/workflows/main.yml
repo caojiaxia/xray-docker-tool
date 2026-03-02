@@ -33,8 +33,9 @@ jobs:
       - name: Build and Push Tunnel
         uses: docker/build-push-action@v5
         with:
+          # context 设为根目录，这样 COPY 才能通过相对路径找到 config.template.json
           context: .
-          # 显式指定路径
+          # file 必须从根目录开始指向具体的 Dockerfile
           file: ./xray-tunnel/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
@@ -68,7 +69,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          # 显式指定路径
           file: ./xray-docker/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
