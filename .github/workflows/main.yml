@@ -8,7 +8,6 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  # 任务 A：构建 Tunnel 专用镜像
   build-tunnel:
     runs-on: ubuntu-latest
     permissions:
@@ -41,7 +40,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 任务 B：构建 Docker 配合 NPM 镜像
   build-docker:
     runs-on: ubuntu-latest
     permissions:
