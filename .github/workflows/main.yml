@@ -8,8 +8,8 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  # 任务 1：构建 Tunnel 镜像
-  xray-tunnel:
+  # 任务 A：构建 Tunnel 专用镜像 (xray-tunnel)
+  build-tunnel:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -37,12 +37,13 @@ jobs:
           context: ./tunnel-version
           platforms: linux/amd64,linux/arm64
           push: true
+          # 修正后的镜像名：xray-tunnel
           tags: ghcr.io/${{ github.repository_owner }}/xray-tunnel:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 任务 2：构建 NPM 配合版镜像
-  xray-docker:
+  # 任务 B：构建 Docker 直连/NPM 配合镜像 (xray-docker)
+  build-docker-xray:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -64,14 +65,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push NPM-Xray
+      - name: Build and Push Docker-Xray
         uses: docker/build-push-action@v5
         with:
-          context: ./npm-version
+          context: ./docker-version
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/xray-npm:latest
+          # 修正后的镜像名：xray-docker
+          tags: ghcr.io/${{ github.repository_owner }}/xray-docker:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-
