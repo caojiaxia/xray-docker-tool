@@ -22,9 +22,9 @@ fi
 install_tunnel() {
     echo -e "${BLUE}--- Tunnel 方案配置 ---${NC}"
     read -p "请输入 Tunnel Token: " TOKEN
-    read -p "请输入 UUID (默认: c67e108d-b135-4acd-b0b4-33f2d18dff44): " UUID
+    read -p "请输入 UUID 重要:禁止使用默认UUID (默认: c67e108d-b135-4acd-b0b4-33f2d18dff44): " UUID
     UUID=${UUID:-c67e108d-b135-4acd-b0b4-33f2d18dff44}
-    read -p "请输入 WS 路径 (默认: /GEdhhrQEkzaq): " XPATH
+    read -p "请输入 WS 路径  重要:禁止使用默认路径 (默认: /xray): " XPATH
     XPATH=${XPATH:-/GEdhhrQEkzaq}
     
     docker rm -f xray-tunnel 2>/dev/null
