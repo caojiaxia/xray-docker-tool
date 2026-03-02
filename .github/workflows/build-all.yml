@@ -1,0 +1,15 @@
+- name: Build Tunnel Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./tunnel-version
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/${{ github.actor }}/xray-tunnel:latest
+
+      - name: Build NPM-Xray Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./npm-version
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/${{ github.actor }}/xray-npm:latest
